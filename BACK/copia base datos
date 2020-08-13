@@ -1,0 +1,922 @@
+ /addNewMoney() {
+      let self = this;
+      let token = localStorage.getItem("AUTH_TOKEN_KEY");
+      axios.defaults.headers.common["Authorization"] = `${token}`;
+      if (this.createMoney === true) {
+        console.log("Hola");
+        axios
+          .post("http://localhost:3000/articles", {
+            price: self.price,
+            locate: self.locate,
+            money_type: self.money_type,
+            money_country: self.money_country,
+            coments: self.coments
+          })
+          .then(function(response) {
+            console.log(response);
+          })
+          .catch(function(error) {
+            console.log(error.response);
+          });
+
+        this.createMoney = false;
+        this.sweetAlertOKMoneda();
+        this.price = "";
+        this.locate = "";
+        this.money_type = "";
+        this.money_country = "";
+        this.coments = "";
+      } else {
+        console.log("yo no debería estar aquí");
+      }
+    }
+ 
+
+
+ SUBIR MONEDA CON FOTO (VERSION INICIAL)
+ 
+ 
+  onUpload() {
+      let token = localStorage.getItem("AUTH_TOKEN_KEY");
+      axios.defaults.headers.common["Authorization"] = `${token}`;
+      const fd = new FormData();
+      fd.append("image", this.selectedFile);
+      axios.post("http://localhost:3000/articles", fd).then(res => {
+        console.log(res);
+      });
+    },
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ ---------------------------------------------------------------
+ 
+ 
+ 
+ /mandar un correo al vendedor con información de que se hizo
+    //una prereserva con los datos necesarios
+   /*  try {
+      // Hacemos una consulta a la base de datos para sacar el
+      //email del vendedor
+      /*  console.log("hola");
+      const [resultData] = await connection.query(
+        `
+        SELECT id, email
+        FROM users
+        WHERE id=?
+        `,
+        [resultData.id_user_seller]
+      );
+      //guardamos los datos de id y email
+      const [sellerData] = resultData;
+
+      /*  //creamos la url para confirmar la prereserva con un código
+      const reserverUrlCode = randomString(40);
+      const reserveConfirm = `${process.env.PUBLIC_HOST}/articles/${id}/confirm/${reserverUrlCode}`; */
+      //mandar el correo para confirmar el artículo
+      /* await sendMail({
+        email: sellerData.email,
+        title: "Reserva de Moneda",
+        content: `Haz click en el siguiente enlace. Para terminar la reserva.`,
+      }); */
+    // } catch (error) {
+    //   throw generateError("No hemos podido enviar el correo.", 500);
+    // }
+
+
+
+
+
+
+
+
+___________________________________________
+
+
+
+
+
+
+
+
+<template>
+  <div>
+    <p>Search by rating for 1 to 5 points</p>
+    <section>
+      <div>
+        <input type="search" v-model="searchRating" placeholder="Search by rating" />
+        <ul v-for="booking in filtered" :key="booking.id">
+          <li>
+            <p>Rating: {{booking.rating}}</p>
+            <p>Money: {{booking.id_money}}</p>
+            <p>Seller: {{booking.id_user_seller}}</p>
+          </li>
+        </ul>
+        <button @click="searchBy()">Search</button>
+      </div>
+    </section>
+  </div>
+</template>
+
+<script>
+export default {
+  name: "BestUSersCom",
+  props: {
+    moneys: Array
+  },
+  data() {
+    return {
+      search: ""
+    };
+  },
+  computed: {
+    filtered() {
+      if (!this.search) {
+        return this.bookings;
+      }
+      return this.booking.filter(booking =>
+        booking.rating.toLowerCase().includes(this.search.toLowerCase())
+      );
+    }
+  },
+  searchBy() {
+    let search = {
+      rating: this.rating
+    };
+    this.$emit("ratingList", search);
+  }
+};
+</script>
+
+<style>
+ul {
+  list-style: none;
+}
+</style>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+_________________________________________________________________________________________________
+
+
+<template>
+  <div class="newPassword">
+    <h1>Edit your password</h1>
+
+    <input type="password" placeholder=" Old password" v-model="oldpassword" />
+    <br />
+    <input type="password" placeholder=" New password" v-model="newpassword" />
+    <br />
+    <button @click="updatePassword()">Update your password</button>
+  </div>
+</template>
+
+<script>
+import axios from "axios";
+import { getIdToken } from "../api/utils";
+
+export default {
+  name: "EditPassword",
+  data() {
+    return {
+      user: [],
+      oldpassword: "",
+      newpassword: ""
+    };
+  },
+  methods: {
+    //FUNCION PARA MONSTRAR LA ANTIGUA CONTRASEÑA DEL USUARIO
+    showOldPassword(datosUsuario) {
+      this.showOldPassword = datosUsuario.password;
+    },
+    //FUNCION PARA ACTUALIZAR LA CONTRASEÑA
+    async updatePassword() {
+      try {
+        let token = localStorage.getItem("AUTH_TOKEN_KEY");
+        axios.defaults.headers.common["Authorization"] = `${token}`;
+
+        const response = await axios.put(
+          "http://localhost:3000/users/" + getIdToken(token) + "/password",
+          {
+            oldpassword: this.oldpassword,
+            newpassword: this.newpassword
+          }
+        );
+
+        console.log(response);
+      } catch (error) {
+        console.log(error.response.data);
+      }
+    }
+  }
+};
+</script>
+
+<style>
+</style>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+----------------------------------------------------------
+
+require("dotenv").config();
+
+const faker = require("faker/locale/es");
+const { getConnection } = require("./db");
+const { random } = require("lodash");
+
+let connection;
+
+async function main() {
+  try {
+    // Conseguir conexión a la base de datos
+    connection = await getConnection();
+
+    /*   await connection.query(`
+
+    SET FOREING_KEY_CHECKS = 0`); */
+
+    console.log("Borrando tablas");
+    await connection.query("DROP TABLE IF EXISTS bookings CASCADE");
+    await connection.query("DROP TABLE IF EXISTS moneys_images CASCADE");
+    await connection.query("DROP TABLE IF EXISTS moneys CASCADE");
+    await connection.query("DROP TABLE IF EXISTS users CASCADE");
+
+    // Crear las tablas de nuevo
+    console.log("Creando tablas");
+    await connection.query(`
+
+
+    CREATE TABLE users (
+      
+        id INT UNSIGNED PRIMARY KEY AUTO_INCREMENT,
+        createDate DATETIME NOT NULL DEFAULT NOW(),
+        name VARCHAR(50) NOT NULL,
+        lastname VARCHAR(50) NOT NULL,
+        dni VARCHAR(10) ,
+        address VARCHAR(50) ,
+        zip_code VARCHAR(5),
+        city VARCHAR(50) ,
+        telephone VARCHAR(15) ,
+        email VARCHAR(50) UNIQUE NOT NULL,
+        bank_account VARCHAR(50) ,
+        user_name VARCHAR(50) UNIQUE,
+        password VARCHAR(128)NOT NULL,
+        active BOOLEAN DEFAULT FALSE,
+        registrationCode VARCHAR(50),
+        role ENUM("admin", "user") DEFAULT "user",
+        lastUpdate DATETIME NOT NULL,
+        lastAuthUpdate DATETIME
+            );
+  `);
+    await connection.query(`
+    CREATE TABLE moneys_images (
+      id INTEGER PRIMARY KEY AUTO_INCREMENT,
+        uploadDate DATETIME NOT NULL,
+        image TINYTEXT,
+        money_id INTEGER NOT NULL
+    )
+    
+    
+    `);
+    await connection.query(`
+    CREATE TABLE moneys (
+      id INT UNSIGNED PRIMARY KEY AUTO_INCREMENT,
+      createDate DATETIME NOT NULL DEFAULT NOW(),
+      price FLOAT DEFAULT 0,
+      locate VARCHAR(50) NOT NULL,
+      money_type VARCHAR(100),
+      money_country VARCHAR (50),
+      coments VARCHAR (100),
+      seller VARCHAR (50) NOT NULL UNIQUE,
+      id_user_seller INT UNSIGNED,
+      FOREIGN KEY (id_user_seller) REFERENCES users(id) ON DELETE CASCADE,
+      lastUpdate DATETIME NOT NULL
+        
+      );
+    `);
+
+    await connection.query(`
+    CREATE TABLE bookings (
+      id INT UNSIGNED PRIMARY KEY AUTO_INCREMENT,
+          createDate DATETIME NOT NULL DEFAULT NOW(),
+          order_number VARCHAR(20),
+          delivery_address VARCHAR(50),
+          rating VARCHAR(50),
+          confirmed BOOLEAN DEFAULT FALSE,
+          lastUpdate DATETIME NOT NULL,
+          id_money INT UNSIGNED,
+          FOREIGN KEY (id_money) REFERENCES moneys (id) ON DELETE CASCADE,
+          id_user_buyer INT UNSIGNED,
+          FOREIGN KEY (id_user_buyer) REFERENCES users(id) ON DELETE CASCADE
+          
+           );
+           `);
+
+    /* 
+    await connection.query(`
+    SET FOREIGN_KEY_CHECKS = 1`); */
+
+    // Meter datos de prueba en las tablas
+
+    console.log("Creando usuario administrador");
+    //COMPLETAR ADMIN
+    await connection.query(
+      `
+      INSERT INTO users(name,lastname,dni,address,zip_code,city,telephone,email,bank_account,user_name,password, active,role, lastUpdate)
+      VALUES("Ricardo","Puig Fraga","545545555","Rua conduzo 41","15173","coruña","671447049", "ricardo@ricardo.com","0505050505050505050505","ricardo_puig",
+      SHA2("${process.env.DEFAULT_ADMIN_PASSWORD}", 512), true,"admin", NOW())
+    `
+    );
+
+    console.log("Metiendo datos de prueba en users");
+    const users = 20;
+
+    for (let index = 0; index < users; index++) {
+      const name = faker.name.firstName();
+      const lastname = faker.name.lastName();
+      const dni = random(30000000, 49999999);
+      const address = faker.address.streetAddress();
+      const zipCode = faker.address.zipCode();
+      const city = faker.address.city();
+      const telephone = faker.phone.phoneNumber();
+      const email = faker.internet.email();
+      const bankAccount = faker.finance.iban();
+      const userName = faker.internet.userName();
+      //const password = faker.internet.password();
+
+      await connection.query(
+        `
+        INSERT INTO users (name, lastname, dni, address, zip_code, city, telephone, email, bank_account, user_name, password,active, lastUpdate)
+        VALUES(
+          "${name}",
+          "${lastname}",
+          "${dni}",
+          "${address}",
+          "${zipCode}",
+          "${city}",
+          "${telephone}",
+        "${email}", 
+        "${bankAccount}",
+        "${userName}",
+        SHA2("${12345678}", 512),
+        1,
+        NOW())
+         `
+      );
+    }
+    const moneys = 20;
+    for (let index = 0; index < moneys; index++) {
+      const price = faker.finance.amount();
+      const locate = faker.address.country();
+      const coments = faker.lorem.words();
+      const seller = faker.internet.userName();
+      const type = faker.finance.currencyName();
+      const country = faker.address.country();
+
+      await connection.query(
+        `
+        INSERT INTO moneys(
+          price,
+          locate,
+          coments,
+          money_type,
+          money_country,
+          seller,
+          id_user_seller,
+          lastUpdate
+        )
+        VALUES(
+          "${price}",
+          "${locate}",
+          "${coments}",
+          "${type}",
+          "${country}",
+          "${seller}",
+          "${random(1, users)}",
+          NOW()
+
+
+        )`
+      );
+    }
+
+    const bookings = 30;
+
+    for (let index = 0; index < bookings; index++) {
+      const orderNumber = random(1, 40);
+      const deliveryAddress = faker.address.streetAddress();
+      const rating = random(1, 5);
+
+      await connection.query(
+        `
+        INSERT INTO bookings(
+          createDate,
+          order_number,
+          delivery_address,
+          rating,
+          confirmed,
+          id_user_buyer,
+          id_money,
+          lastUpdate
+
+        )
+
+        VALUES (
+         NOW(),
+          "${orderNumber}","${deliveryAddress}"
+          ,"${rating}",0,"${random(1, users)}","${random(1, moneys)}",NOW()
+        )
+        `
+      );
+    }
+  } catch (error) {
+    console.error(error);
+  } finally {
+    console.log("Todo hecho, liberando conexión");
+    if (connection) connection.release();
+    process.exit();
+  }
+}
+
+main();
+
+
+---------------------------------------
+
+
+
+
+
+
+
+
+ //NO NECESITO ESTO,estaba en new entry
+    /* // Comprobar que no no existe una entrada con el mismo place
+    const [existingEntry] = await connection.query(
+      `
+      SELECT id 
+      FROM proyectoMonedas
+      WHERE money_type=?,selected_quantity=?,price=?,locate=?
+    `,
+      [money_type, selected_quantity, price, locate]
+    );
+
+    if (existingEntry.length > 0) {
+      const error = new Error(
+        "Ya existe una entrada en la base de datos con esos campos"
+      );
+      error.httpStatus = 409;
+      throw error;
+    } */
+
+
+
+
+
+
+
+
+
+
+    const { getConnection } = require("../../db");
+
+const { newEntrySchema } = require("../../validators/diaryValidators");
+const {
+  processAndSaveImage,
+  deleteUpload,
+  generateError,
+} = require("../../helpers");
+const { throttle } = require("lodash");
+
+//Procesar la imagen si existe
+let saveImageFileName;
+
+/*  //Procesar la imagen si esta en el body
+if (req.files && req.files.image) {
+  try {
+    //Procesar y gaurdar imagen
+
+    saveImageFileName = await processAndSaveImage(reqfiles.image);
+  } catch (error) {
+    throw generateError(
+      "No se pudo procesar la imagen. INtentalo de nuevo",
+      400
+    );
+  } 
+} */
+
+const images = [];
+
+if (req.files && Object.keys(req.files).length > 0) {
+  for (const [imageName, imageData] of Object.entries(req.files).slice) 0, 2;
+  try {
+    // showDebug(imageName);
+
+    const processedImage = await processAndSaveImage(imageData);
+
+    images.push(processedImage);
+
+    await connection.query(
+      ` 
+        INSERT INTO moneys_images(image, money_id)
+        VALUES (?,?)
+        `,
+      [processedImage, result.insertId]
+    );
+  } catch (error) {
+    throw generateError(
+      "no se pudo procesar la imagen.Intentalo de nuevo",
+      400
+    );
+  }
+}
+
+async function newMoney(req, res, next) {
+  let connection;
+  try {
+    connection = await getConnection();
+
+    await newEntrySchema.validateAsync(req.body);
+
+    // Sacar de req.body los datos que necesitio
+    const {
+      price,
+      locate,
+      money_type,
+      money_country,
+      coments,
+      seller,
+      images,
+    } = req.body;
+
+    // Ejecutar la query
+    const [result] = await connection.query(
+      `
+      INSERT INTO moneys(price,locate,money_type,money_country,coments,seller,id_user_seller,lastUpdate)
+      VALUES(?,?,ENUM('Dolares','Libras','Euros'),NUM('ES','UK','EEUU'),?,?,?,NOW())
+      `,
+      [
+        price,
+        locate,
+        money_type,
+        money_country,
+        coments,
+        seller,
+        images,
+        req.auth.id,
+      ]
+    );
+
+    // Si hay imágenes, procesar cada imagen y meterla en la tabla diary_images
+    // Con la referencia a la entrada que acabo de meter
+
+    // Devolver el resultado
+
+    res.send({
+      status: "ok",
+      data: {
+        id: result.insertId,
+        price,
+        locate,
+        money_type,
+        money_country,
+        coments,
+        seller,
+        images,
+      },
+    });
+  } catch (error) {
+    next(error);
+  } finally {
+    if (connection) connection.release();
+  }
+}
+
+module.exports = newMoney;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+nuevo articulo
+
+const { getConnection } = require("../../db");
+const { processAndSaveImage } = require("../../helpers");
+
+async function newBooking(req, res, next) {
+  let connection;
+  try {
+    connection = await getConnection();
+
+    // Sacar de req.body los datos que necesitio
+    const { id_money, selected_quantity } = req.body;
+
+    // Comprobar que están todos los datos necesarios
+    if (!id_money || !selected_quantity) {
+      const error = new Error("Faltan datos obligatorios en la petición.");
+      error.httpStatus = 400;
+      throw error;
+    }
+
+    let savedImageFileName;
+
+    // Procesar la imagen si está en el body
+    if (req.files && req.files.image) {
+      try {
+        // Procesar y guardar imagen
+        savedImageFileName = await processAndSaveImage(req.files.image);
+      } catch (error) {
+        const imageError = new Error(
+          "No se pudo procesar la imagen. Inténtalo de nuevo"
+        );
+        imageError.httpStatus = 400;
+        throw imageError;
+      }
+    }
+
+    // Ejecutar la query
+    const [result] = await connection.query(
+      `
+      INSERT INTO proyectoMoneda(money_type,selected_quantity,lastUpdate, user_id)
+      VALUES(?,?,?,NOW(), ?)
+      `,
+      [id_money, selected_quantity, req.auth.id]
+    );
+
+    // Devolver el resultado
+
+    res.send({
+      status: "ok",
+      data: {
+        id: result.insertId,
+        id_money,
+        selected_quantity,
+
+        image: savedImageFileName,
+      },
+    });
+  } catch (error) {
+    next(error);
+  } finally {
+    if (connection) connection.release();
+  }
+}
+
+module.exports = newBooking;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+querys 
+
+//esta es la que estabas haciendo:
+
+async function listmoneys(req, res, next) {
+  let connection;
+
+  try {
+    connection = await getConnection();
+
+    const { search, order, direction } = req.query;
+
+    const orderDirection =
+      (direction && direction.toLowerCase()) === "desc" ? "DESC" : "ASC";
+
+    let orderBy;
+    switch (order) {
+      case "type":
+        orderBy = "type";
+        break;
+      case "price":
+        orderBy = "price";
+        break;
+      case "locate":
+        orderBy = "locate";
+        break;
+    }
+
+    let queryResults;
+    console.log("hasta aqui");
+    if (search) {
+      queryResults = await connection.query(
+        `
+      SELECT 
+moneys.id
+, moneys.money_type, moneys.price, moneys.locate, moneys.id_user_seller
+      FROM moneys
+      WHERE price LIKE ? 
+      ORDER BY ${orderBy} ${orderDirection}
+      `,
+        [`%${search}%`, `${search}%`]
+      );
+    } else {
+      queryResults = await connection.query(
+        `
+        SELECT 
+moneys.id
+, moneys.money_type, moneys.price, moneys.locate, moneys.id_user_seller
+        FROM moneys
+        ORDER BY ${orderBy} ${orderDirection}
+        `
+      );
+    }
+
+    const [result] = queryResults;
+
+    res.send({
+      status: "ok",
+      data: result,
+    });
+  } catch (error) {
+    next(error);
+  } finally {
+    if (connection) connection.release();
+  }
+}
+
+module.exports = listmoneys;
+
+________________________________________________________________________
+
+
+
+
+const { getConnection } = require("../../db");
+
+async function listProducts(req, res, next) {
+  let connection;
+
+  try {
+    connection = await getConnection();
+
+    const { search, order, direction } = req.query;
+
+    const orderDirection =
+      (direction && direction.toLowerCase()) === "desc" ? "DESC" : "ASC";
+
+    let orderBy;
+    switch (order) {
+      case "council":
+        orderBy = "council";
+        break;
+      case "price":
+        orderBy = "price";
+        break;
+      case "category":
+        orderBy = "category";
+        break;
+    }
+
+    let queryResults;
+    if (search) {
+      queryResults = await connection.query(
+        `
+      SELECT 
+bbdd.id
+, bbdd.council, bbdd.price, bbdd.category, bbdd.user_id,
+      FROM bbdd
+      WHERE council LIKE ? 
+      ORDER BY ${orderBy} ${orderDirection}
+      `,
+        [`%${search}%`, `${search}%`]
+      );
+    } else {
+      queryResults = await connection.query(
+        `
+        SELECT 
+bbdd.id
+, bbdd.council, bbdd.price, bbdd.category, bbdd.user_id,
+        FROM bbdd
+        ORDER BY ${orderBy} ${orderDirection}
+        `
+      );
+    }
+
+    const [result] = queryResults;
+
+    res.send({
+      status: "ok",
+      data: result,
+    });
+  } catch (error) {
+    next(error);
+  } finally {
+    if (connection) connection.release();
+  }
+}
+
+module.exports = listProducts;
+
+___________________________________________________
+
+let connection;
+const category = req.query.category;
+const price1 = req.query.price1;
+const price2 = req.query.price2;
+const brand = req.query.brand;
+const locality = req.query.locality;
+
+let sql = 'SELECT * FROM articles';
+let count = 0;
+
+if ((category) || (price1) || (price2) || (brand) || (locality)) {
+sql += ' WHERE ';
+}
+
+if (category) {
+sql += 'category = ${category}';
+count++;
+}
+
+if ($brand) {
+if (count > 0)
+sql += " AND ";
+sql += ' brand = ${brand}'
+count++;
+}
+
+// TODO To be continued . . .
+
+sql += 'price BETWEEN ${price1} AND ${price2}';
