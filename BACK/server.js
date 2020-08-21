@@ -22,18 +22,22 @@ const editPassword = require("./controllers/users/editPassword");
 const recoverUSerPassword = require("./controllers/users/recoverUserPassword");
 const editUser = require("./controllers/users/editUser");
 const getBestUsers = require("./controllers/users/getBestUsers");
+const getAvgSeller = require("./controllers/users/getAvgSeller");
+const listUserArticles = require("./controllers/users/listUserArticles");
 
 //Bookings controllers
-const getBooking = require("./controllers/entries/getBookings");
-const listBookings = require("./controllers/entries/listBookings");
-const rating = require("./controllers/entries/rating");
-const uploadEntryImage = require("./controllers/entries/uploadEntryImage");
+// const getBooking = require("./controllers/bookings/getBooking");/*  */
+const listBookings = require("./controllers/bookings/listBookings");
+const rating = require("./controllers/bookings/rating");
+const newBooking = require("./controllers/bookings/newBooking");
+const newRate = require("./controllers/bookings/newRate");
 
 //Articles controllers
-const newMoney = require("./controllers/articles/newMoney");
-const editMoney = require("./controllers/articles/editMoney");
-const listMoneys = require("./controllers/articles/listMoneys");
-const bookingMoney = require("./controllers/articles/bookingMoney");
+const uploadEntryImage = require("./controllers/moneys/uploadEntryImage");
+const newMoney = require("./controllers/moneys/newMoney");
+const editMoney = require("./controllers/moneys/editMoney");
+const listMoneys = require("./controllers/moneys/listMoneys");
+const deleteMoney = require("./controllers/moneys/deleteMoney");
 
 const app = express();
 
@@ -50,12 +54,12 @@ app.use(bodyParser.json());
 
 // Procesado de body tipo form-data
 app.use(fileUpload());
-
+app.use(express.static("static"));
 //Reservar moneda
 //POST /articles/:money_id/reserve (el otro confirme)
 //reservar un articulo para comprar
 //usuarios
-app.post("/articles/:id/booking", isUser, bookingMoney);
+// app.post("/articles/:id/booking", isUser, getBooking);
 
 //listar las monedas
 //GET - /articles
@@ -64,6 +68,12 @@ app.post("/articles/:id/booking", isUser, bookingMoney);
 app.get("/articles", listMoneys);
 
 //ARTICULOS
+
+// Borrar un articulo
+// DELETE- /articles/:id
+// Sólo el usuario admin
+app.delete("/articles/:id", isUser, deleteMoney);
+
 //Editar un Articulo
 //PUT - /articles/:id
 //SOlo los usuarios registradosarticulo subido
@@ -77,9 +87,10 @@ app.post("/articles", isUser, newMoney);
 // Añadir una imagen a una entrada
 // POST /entries/:id/images
 // Solo usuario que crear esta entrada o admin
-app.post("/entries/:id/images", isUser, bookingExist, uploadEntryImage);
+app.post("/articles/:id/images", isUser, bookingExist, uploadEntryImage);
 
 //ENTRADAS
+
 // Votar una entrada
 // POST - /entries/:id/votes
 // Sólo usuarios registrados
@@ -92,9 +103,26 @@ app.get("/entries/:id", listBookings);
 
 //MOSTRAR UNA ENTRADA
 //GET - /bookings/:id
-app.get("/user/:id/bookings/:id", isUser, bookingExist, getBooking);
-// app.get("/user/:id/bookings/:id", isUser, bookingExist, getBooking);
+// app.get("/user/:id/bookings/:id", isUser, bookingExist, getBooking);/*  */
+
+//NUEVA RESERVA
+//POST-/entries/:id/booking
+app.post("/articles/:id/booking", isUser, newBooking);
+
+//NUEVA RESERVA
+//POST-/entries/:id/newrate
+app.put("/entries/:id/newrate", isUser, newRate);
+
 //USUARIOS
+//Listar los articuos de cada usuario
+//PUT - /articles/:id
+//SOlo los usuarios registrados articulo subido
+app.get("/users/:id/listuserarticles", isUser, listUserArticles);
+
+//SACAR LOS VOTOS DEL VENDEDOR
+//GET- /user/rating
+//usuarios
+app.get("/users/:id/rating", getAvgSeller);
 
 //Listar el mejor ususario
 //GET - /users/bestuser

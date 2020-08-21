@@ -1,5 +1,5 @@
 const { getConnection } = require("../../db");
-const { generateError, sendMail, randomString } = require("../../helpers");
+const { generateError, sendMail } = require("../../helpers");
 
 async function reserveArticle(req, res, next) {
   let connection;
@@ -7,16 +7,13 @@ async function reserveArticle(req, res, next) {
   try {
     connection = await getConnection();
 
-    // desectructuramos el resultasdo para obtener los
-    //datos que necesitamos
-
-    // creamos una entrada en la tabla reservas cnoomo no confirmada
+    // creamos una entrada en la tabla reservas como no confirmada
     await connection.query(
       `
-  INSERT INTO bookings(createDate,order_number,lastUpdate,id_money,id_user_buyer)
-  VALUES (NOW(),?,NOW(),?,?)
+  INSERT INTO bookings(createDate,lastUpdate,id_money,id_user)
+  VALUES (NOW(),NOW(),?,?)
   `,
-      [randomString(5), req.params.id, req.auth.id]
+      [req.params.id, req.auth.id]
     );
 
     //  mandar el correo para confirmar el artículo
@@ -44,7 +41,7 @@ async function reserveArticle(req, res, next) {
 
     res.send({
       status: "Ok",
-      data: "Articulo Prereservado",
+      data: "Articulo reservado",
     });
   } catch (error) {
     next(error);

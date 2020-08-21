@@ -13,20 +13,13 @@ async function editMoney(req, res, next) {
 
     //Sacamos los datos
 
-    const {
-      price,
-      locate,
-      money_type,
-      money_country,
-      coments,
-      seller,
-    } = req.body;
+    const { price, locate, money_type, money_country, coments } = req.body;
     const { id } = req.params;
 
     //Selecionar los datos actuales de la entrada
     const [current] = await connection.query(
       `
-      SELECT id, price, locate, money_type, money_country, coments, seller, id_user_seller,
+      SELECT id, price, locate, money_type, money_country, coments, id_user,
       lastUpdate
       FROM moneys
         WHERE id=?`,
@@ -34,10 +27,7 @@ async function editMoney(req, res, next) {
     );
     const [currentEntry] = current;
 
-    if (
-      currentEntry.id_user_seller !== req.auth.id &&
-      req.auth.role !== "admin"
-    ) {
+    if (currentEntry.id_user !== req.auth.id && req.auth.role !== "admin") {
       throw generateError("No tienes persmisos para editar esta entrada", 403);
     }
 
@@ -50,12 +40,11 @@ async function editMoney(req, res, next) {
       locate=?,
       money_type=?,
       money_country=?,
-      coments=?,
-      seller=?
+      coments=?
 
     WHERE id=?
           `,
-      [price, locate, money_type, money_country, coments, seller, id]
+      [price, locate, money_type, money_country, coments, id]
     );
 
     //Devolver resultados
@@ -67,7 +56,6 @@ async function editMoney(req, res, next) {
         money_type,
         money_country,
         coments,
-        seller,
       },
     });
   } catch (error) {

@@ -1,3 +1,299 @@
+ 
+ ----------------------------------------NEWMONEY.JS-------------------------
+
+const { getConnection } = require("../../db");
+
+const { newEntrySchema } = require("../../vallidators/moneyVallidators");
+const {
+  processAndSaveImage,
+  generateError,
+  showDebug,
+} = require("../../helpers");
+
+async function newMoney(req, res, next) {
+  let connection;
+
+  try {
+    connection = await getConnection();
+
+    await newEntrySchema.validateAsync(req.body);
+    // Sacar de req.body los datos que necesitio
+    const { price, locate, money_type, money_country, coments } = req.body;
+
+    // Ejecutar la query
+    const [result] = await connection.query(
+      `
+      INSERT INTO moneys(
+        price,
+        locate,
+        money_type,
+        money_country,
+        coments,
+        id_user,
+        lastUpdate,)
+        VALUES(?,?,?,?,?,?,NOW())
+        `,
+      [price, locate, money_type, money_country, coments, req.auth.id]
+    );
+
+    const images = [];
+    console.log(req.files);
+    if (req.files && Object.keys(req.files).length > 0) {
+      for (const [imageName, imageData] of Object.entries(req.files).slice(
+        0,
+        3
+      )) {
+        try {
+          showDebug(imageName);
+
+          const processedImage = await processAndSaveImage(imageData);
+          console.log("Entra");
+          images.push(processedImage);
+
+          await connection.query(
+            ` 
+          INSERT INTO moneys_images(uploadDate,image,money_id)
+          VALUES (UTC_TIMESTAMP,?,?)
+          `,
+            [processedImage, result.insertId]
+          );
+        } catch (error) {
+          throw generateError(
+            "no se pudo procesar la imagen.Intentalo de nuevo",
+            400
+          );
+        }
+      }
+    }
+    // Si hay imágenes, procesar cada imagen y meterla en la tabla money_images
+    // Con la referencia a la entrada que acabo de meter
+
+    // Devolver el resultado
+
+    res.send({
+      status: "ok",
+      data: {
+        id: result.insertId,
+        price,
+        locate,
+        money_type,
+        money_country,
+        coments,
+        images,
+      },
+    });
+  } catch (error) {
+    next(error);
+  } finally {
+    if (connection) connection.release();
+  }
+}
+
+module.exports = newMoney;
+
+-----------------------------------------------------------------------------------------------------
+
+
+----------------LIST MONEYS.JS TABLA DE IMAGENES------------------------------------------------------
+
+const { getConnection } = require("../../db");
+
+async function listmoneys(req, res, next) {
+  let connection;
+
+  try {
+    connection = await getConnection();
+
+    const { locate, money_type, price1, price2 } = req.query;
+    let sql = `SELECT moneys.* , moneys_images.image, users.name , AVG(bookings.rating) as average
+FROM moneys
+LEFT JOIN moneys_images ON moneys.id = moneys_images.money_id
+INNER JOIN users ON moneys.id_user = users.id
+INNER JOIN bookings ON bookings.id_money = moneys.id
+`;
+    let count = 0;
+    let parameters = [];
+    console.log(sql);
+    if (locate) {
+      sql += " WHERE locate = ?";
+      parameters.push(locate);
+      count++;
+    }
+
+    if (money_type) {
+      if (count > 0) {
+        sql += " AND ";
+      } else {
+        sql += " WHERE ";
+      }
+      sql += " money_type = ? ";
+      parameters.push(money_type);
+      count++;
+    }
+    if (price1) {
+      if (count > 0) {
+        sql += " AND ";
+      } else {
+        sql += " WHERE ";
+      }
+      sql += " price >= ?";
+      parameters.push(price1);
+      count++;
+    }
+    if (price2) {
+      if (count > 0) {
+        sql += " AND ";
+      } else {
+        sql += " WHERE ";
+      }
+      sql += " price <= ?";
+      parameters.push(price2);
+      count++;
+    }
+    sql += " group by moneys.id, moneys_images.image, users.name";
+
+    let queryResults;
+    console.log(sql, parameters);
+    queryResults = await connection.query(sql, parameters);
+    const [result] = queryResults;
+
+    res.send({
+      status: "ok",
+      data: result,
+    });
+  } catch (error) {
+    next(error);
+  } finally {
+    if (connection) connection.release();
+  }
+}
+
+module.exports = listmoneys;
+
+
+
+
+
+------------------------------------------------------------------
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+const { getConnection } = require("../../db");
+
+const { newEntrySchema } = require("../../vallidators/moneyVallidators");
+const { generateError } = require("../../helpers");
+
+async function newBooking(req, res, next) {
+  let connection;
+
+  try {
+    connection = await getConnection();
+    console.log(req.auth);
+    const { id_money } = req.params;
+    // const id_user = req.auth.id;
+
+    // Ejecutar la query
+
+    const [data] = await connection.query(
+      `
+      INSERT INTO bookings(
+           createDate,
+          confirmed,
+          id_user,
+          id_money,
+          lastUpdate)
+          VALUES (NOW(),TRUE,?,?,NOW())
+        
+        `,
+      [req.auth.id, id_money]
+    );
+
+    // Devolver el resultado
+
+    res.send({
+      status: "ok",
+      data,
+    });
+  } catch (error) {
+    next(error);
+  } finally {
+    if (connection) connection.release();
+  }
+}
+
+module.exports = newBooking;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+ ____________
+ SELECT AVG(rating)
+ FROM bookings
+ WHERE id_user =?
+
+NOTA MEDIA DE UN VENDEDOR
+ 
+ SELECT AVG(b.rating)
+ FROM bookings b
+JOIN money m on m.id = b.id_money
+ WHERE m.id_user =?
+
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
  /addNewMoney() {
       let self = this;
       let token = localStorage.getItem("AUTH_TOKEN_KEY");
@@ -70,7 +366,7 @@
         FROM users
         WHERE id=?
         `,
-        [resultData.id_user_seller]
+        [resultData.id_user]
       );
       //guardamos los datos de id y email
       const [sellerData] = resultData;
@@ -114,7 +410,7 @@ ___________________________________________
           <li>
             <p>Rating: {{booking.rating}}</p>
             <p>Money: {{booking.id_money}}</p>
-            <p>Seller: {{booking.id_user_seller}}</p>
+            <p>Seller: {{booking.id_user}}</p>
           </li>
         </ul>
         <button @click="searchBy()">Search</button>
@@ -347,8 +643,8 @@ async function main() {
       money_country VARCHAR (50),
       coments VARCHAR (100),
       seller VARCHAR (50) NOT NULL UNIQUE,
-      id_user_seller INT UNSIGNED,
-      FOREIGN KEY (id_user_seller) REFERENCES users(id) ON DELETE CASCADE,
+      id_user INT UNSIGNED,
+      FOREIGN KEY (id_user) REFERENCES users(id) ON DELETE CASCADE,
       lastUpdate DATETIME NOT NULL
         
       );
@@ -365,8 +661,8 @@ async function main() {
           lastUpdate DATETIME NOT NULL,
           id_money INT UNSIGNED,
           FOREIGN KEY (id_money) REFERENCES moneys (id) ON DELETE CASCADE,
-          id_user_buyer INT UNSIGNED,
-          FOREIGN KEY (id_user_buyer) REFERENCES users(id) ON DELETE CASCADE
+          id_user INT UNSIGNED,
+          FOREIGN KEY (id_user) REFERENCES users(id) ON DELETE CASCADE
           
            );
            `);
@@ -441,7 +737,7 @@ async function main() {
           money_type,
           money_country,
           seller,
-          id_user_seller,
+          id_user,
           lastUpdate
         )
         VALUES(
@@ -474,7 +770,7 @@ async function main() {
           delivery_address,
           rating,
           confirmed,
-          id_user_buyer,
+          id_user,
           id_money,
           lastUpdate
 
@@ -611,7 +907,7 @@ async function newMoney(req, res, next) {
     // Ejecutar la query
     const [result] = await connection.query(
       `
-      INSERT INTO moneys(price,locate,money_type,money_country,coments,seller,id_user_seller,lastUpdate)
+      INSERT INTO moneys(price,locate,money_type,money_country,coments,seller,id_user,lastUpdate)
       VALUES(?,?,ENUM('Dolares','Libras','Euros'),NUM('ES','UK','EEUU'),?,?,?,NOW())
       `,
       [
@@ -784,7 +1080,7 @@ async function listmoneys(req, res, next) {
         `
       SELECT 
 moneys.id
-, moneys.money_type, moneys.price, moneys.locate, moneys.id_user_seller
+, moneys.money_type, moneys.price, moneys.locate, moneys.id_user
       FROM moneys
       WHERE price LIKE ? 
       ORDER BY ${orderBy} ${orderDirection}
@@ -796,7 +1092,7 @@ moneys.id
         `
         SELECT 
 moneys.id
-, moneys.money_type, moneys.price, moneys.locate, moneys.id_user_seller
+, moneys.money_type, moneys.price, moneys.locate, moneys.id_user
         FROM moneys
         ORDER BY ${orderBy} ${orderDirection}
         `

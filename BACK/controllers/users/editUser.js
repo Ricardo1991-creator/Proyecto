@@ -38,10 +38,7 @@ async function editUSer(req, res, next) {
     );
     const [currentEntry] = current;
 
-    if (
-      currentEntry.id_user_seller !== req.auth.id &&
-      req.auth.role !== "user"
-    ) {
+    if (currentEntry.id_user !== req.auth.id && req.auth.role !== "user") {
       throw generateError("No tienes persmisos para editar esta entrada", 403);
     }
 

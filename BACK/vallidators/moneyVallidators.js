@@ -4,7 +4,7 @@ const { generateError } = require("../helpers");
 // Valida nueva entrada en el diario
 const newEntrySchema = Joi.object().keys({
   price: Joi.string()
-    .min(3)
+    .min(2)
     .max(100)
     .required()
     .error(
@@ -21,7 +21,7 @@ const newEntrySchema = Joi.object().keys({
 
 const editEntrySchema = Joi.object().keys({
   price: Joi.string()
-    .min(3)
+    .min(2)
     .max(100)
     .required()
     .error(

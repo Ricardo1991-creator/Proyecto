@@ -38,7 +38,6 @@ async function main() {
         city VARCHAR(50) ,
         telephone VARCHAR(15) ,
         email VARCHAR(50) UNIQUE NOT NULL,
-        bank_account VARCHAR(50) ,
         user_name VARCHAR(50) UNIQUE,
         password VARCHAR(128)NOT NULL,
         active BOOLEAN DEFAULT FALSE,
@@ -67,9 +66,8 @@ async function main() {
       money_type VARCHAR(100),
       money_country VARCHAR (50),
       coments VARCHAR (100),
-      seller VARCHAR (50) NOT NULL UNIQUE,
-      id_user_seller INT UNSIGNED,
-      FOREIGN KEY (id_user_seller) REFERENCES users(id) ON DELETE CASCADE,
+      id_user INT UNSIGNED,
+      FOREIGN KEY (id_user) REFERENCES users(id) ON DELETE CASCADE,
       lastUpdate DATETIME NOT NULL
         
       );
@@ -79,15 +77,13 @@ async function main() {
     CREATE TABLE bookings (
       id INT UNSIGNED PRIMARY KEY AUTO_INCREMENT,
           createDate DATETIME NOT NULL DEFAULT NOW(),
-          order_number VARCHAR(20),
-          delivery_address VARCHAR(50),
-          rating VARCHAR(50),
-          confirmed BOOLEAN DEFAULT FALSE,
+          rating INT(1),
+          confirmed BOOLEAN DEFAULT TRUE,
           lastUpdate DATETIME NOT NULL,
           id_money INT UNSIGNED,
           FOREIGN KEY (id_money) REFERENCES moneys (id) ON DELETE CASCADE,
-          id_user_buyer INT UNSIGNED,
-          FOREIGN KEY (id_user_buyer) REFERENCES users(id) ON DELETE CASCADE
+          id_user INT UNSIGNED,
+          FOREIGN KEY (id_user) REFERENCES users(id) ON DELETE CASCADE
            );
            `);
 
@@ -148,7 +144,6 @@ async function main() {
       const price = faker.finance.amount();
       const locate = faker.address.country();
       const coments = faker.lorem.words();
-      const seller = faker.internet.userName();
       const type = faker.finance.currencyName();
       const country = faker.address.country();
 
@@ -160,8 +155,7 @@ async function main() {
           coments,
           money_type,
           money_country,
-          seller,
-          id_user_seller,
+          id_user,
           lastUpdate
         )
         VALUES(
@@ -170,7 +164,6 @@ async function main() {
           "${coments}",
           "${type}",
           "${country}",
-          "${seller}",
           "${random(1, users)}",
           NOW()
 
@@ -194,7 +187,7 @@ async function main() {
           delivery_address,
           rating,
           confirmed,
-          id_user_buyer,
+          id_user,
           id_money,
           lastUpdate
 

@@ -33,7 +33,7 @@ async function rating(req, res, next) {
       `
           SELECT id
           FROM bookings
-          WHERE id_user_buyer=?`,
+          WHERE id_user=?`,
       [id, req.auth.id]
     );
     if (existingRating.length > 0) {
@@ -47,7 +47,7 @@ async function rating(req, res, next) {
     //Guardamos el voto en la base de datos
     await connection.query(
       `
-          INSERT INTO bookings(id_user_buyer,rating,name,lasUpdate)
+          INSERT INTO bookings(id_user,rating,name,lasUpdate)
           VALUES (?, ?, ?, NOW())
         `,
       [id, userRating, req.auth.id]

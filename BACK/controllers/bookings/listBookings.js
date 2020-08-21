@@ -9,12 +9,17 @@ async function listBookings(req, res, next) {
 
     const [result] = await connection.query(
       `
-      SELECT bookings.id,order_number,delivery_address,rating,
-      id_user_buyer
+     SELECT bookings.id,order_number,rating,moneys.price,
+      moneys.money_type,moneys.money_country,buyer.name,moneys.id_user,buyer.address,
+      buyer.zip_code,buyer.city, bookings.rating, seller.name
       FROM bookings
-      INNER JOIN users
-      ON bookings.id_user_buyer = users.id
-      WHERE users.id = ?
+      INNER JOIN users as buyer
+      ON bookings.id_user = buyer.id
+      INNER JOIN moneys
+      ON bookings.id_money = moneys.id
+      INNER JOIN users as seller
+      ON moneys.id_user = seller.id
+      WHERE buyer.id = ?
       `,
       [id]
     );
