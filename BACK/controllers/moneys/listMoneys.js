@@ -7,12 +7,15 @@ async function listmoneys(req, res, next) {
     connection = await getConnection();
 
     const { locate, money_type, price1, price2 } = req.query;
-    let sql = `
-    SELECT moneys.* ,moneys_images.image, users.name , AVG(bookings.rating) as average
+    let sql =
+      //la original está en copia monedas,te pone las monedas reservadas ya
+
+      `
+   SELECT moneys.* ,moneys_images.image, users.name , AVG(bookings.rating) as average
 FROM moneys
 LEFT JOIN moneys_images ON moneys.id = moneys_images.money_id
+LEFT JOIN bookings ON bookings.id_money = moneys.id
 INNER JOIN users ON moneys.id_user = users.id
-INNER JOIN bookings ON bookings.id_money = moneys.id
 
 `;
     let count = 0;

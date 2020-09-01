@@ -9,13 +9,14 @@ async function listUserArticles(req, res, next) {
 
     const [result] = await connection.query(
       `
-      SELECT moneys.id,money_type,price,money_country,coments, seller.id as vendedor, COUNT(*) as num_ventas 
+      SELECT moneys_images.image,moneys.id,locate,money_type,price,money_country,coments, seller.id as vendedor, COUNT(*) as num_ventas,moneys.createDate
       FROM moneys
       LEFT JOIN bookings  on moneys.id = bookings.id_money
       INNER JOIN users as seller
       ON moneys.id_user = seller.id
+      LEFT JOIN moneys_images on moneys.id = moneys_images.money_id
       WHERE seller.id = ?
-      group by moneys.id,money_type,price,money_country,coments, vendedor
+      group by moneys_images.image,moneys.id,money_type,price,money_country,coments, vendedor
       `,
       [id]
     );
@@ -52,6 +53,7 @@ async function listUserArticles(req, res, next) {
     res.send({
       status: "ok",
       data: result,
+      soldMoneys,
     });
   } catch (error) {
     next(error);

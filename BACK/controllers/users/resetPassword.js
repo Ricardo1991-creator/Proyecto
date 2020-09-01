@@ -36,7 +36,7 @@ async function resetPassword(req, res, next) {
     await connection.query(
       `
     UPDATE users
-    SET createDate=NOW(), password=SHA2(?, 512), registrationCode=NULL, lastUpdate=NOW(),lastAuthUpdate=NOW()
+    SET createDate=UTC_TIMESTAMP, password=SHA2(?, 512), registrationCode=NULL, lastUpdate=UTC_TIMESTAMP,lastAuthUpdate=UTC_TIMESTAMP
     WHERE registrationCode=?
     `,
       [newPassword, recoverCode]

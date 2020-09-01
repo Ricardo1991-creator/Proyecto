@@ -11,7 +11,7 @@ async function reserveArticle(req, res, next) {
     await connection.query(
       `
   INSERT INTO bookings(createDate,lastUpdate,id_money,id_user)
-  VALUES (NOW(),NOW(),?,?)
+  VALUES (UTC_TIMESTAMP,UTC_TIMESTAMP,?,?)
   `,
       [req.params.id, req.auth.id]
     );

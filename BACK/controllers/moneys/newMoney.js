@@ -21,6 +21,7 @@ async function newMoney(req, res, next) {
     const [result] = await connection.query(
       `
       INSERT INTO moneys(
+        createDate,
         price,
         locate,
         money_type,
@@ -28,15 +29,15 @@ async function newMoney(req, res, next) {
         coments,
         id_user,
         lastUpdate)
-        VALUES(?,?,?,?,?,?,NOW())
+        VALUES(UTC_TIMESTAMP,?,?,?,?,?,?,UTC_TIMESTAMP)
         `,
       [price, locate, money_type, money_country, coments, req.auth.id]
     );
 
-    console.log(req.files);
     if (req.files && req.files.image) {
       try {
         const processedImage = await processAndSaveImage(req.files.image);
+        console.log(processedImage);
 
         await connection.query(
           ` 
@@ -45,30 +46,42 @@ async function newMoney(req, res, next) {
           `,
           [processedImage, result.insertId]
         );
+        res.send({
+          status: "ok",
+          data: {
+            id: result.insertId,
+            price,
+            locate,
+            money_type,
+            money_country,
+            coments,
+            processedImage,
+          },
+        });
       } catch (error) {
         throw generateError(
           "no se pudo procesar la imagen.Intentalo de nuevo",
           400
         );
       }
+    } else {
+      res.send({
+        status: "ok",
+        data: {
+          id: result.insertId,
+          price,
+          locate,
+          money_type,
+          money_country,
+          coments,
+        },
+      });
     }
 
     // Si hay imágenes, procesar cada imagen y meterla en la tabla money_images
     // Con la referencia a la entrada que acabo de meter
 
     // Devolver el resultado
-
-    res.send({
-      status: "ok",
-      data: {
-        id: result.insertId,
-        price,
-        locate,
-        money_type,
-        money_country,
-        coments,
-      },
-    });
   } catch (error) {
     next(error);
   } finally {

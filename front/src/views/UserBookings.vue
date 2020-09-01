@@ -18,12 +18,12 @@ export default {
     return {
       bookings: [],
       id: null,
-      orde_number: "",
       address: "",
       zip_code: "",
       city: "",
       money_type: "",
       id_user: "",
+      createDate: "",
       name: ""
     };
   },
@@ -71,5 +71,4 @@ export default {
 };
 </script>
 
-<style>
-</style>
+<style></style>

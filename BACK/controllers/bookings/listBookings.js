@@ -9,7 +9,7 @@ async function listBookings(req, res, next) {
 
     const [result] = await connection.query(
       `
-     SELECT bookings.id,order_number,rating,moneys.price,
+     SELECT bookings.id,rating,moneys.price,bookings.createDate,
       moneys.money_type,moneys.money_country,buyer.name,moneys.id_user,buyer.address,
       buyer.zip_code,buyer.city, bookings.rating, seller.name
       FROM bookings

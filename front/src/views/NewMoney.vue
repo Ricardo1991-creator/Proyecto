@@ -1,9 +1,8 @@
-
 <template>
   <div>
-    <h1>New Article</h1>
+    <h1>New currency</h1>
 
-    <input type="file" ref="imagenArticulo1" @change="catchSeeArticle1" />
+    <input type="file" ref="image" @change="catchSeeArticle1" />
     <br />
     <input type="text" v-model="money_type" placeholder="Money type" />
     <br />
@@ -29,36 +28,38 @@ import Swal from "sweetalert2";
 import { getIdToken } from "../api/utils";
 
 export default {
-  name: "AddMoneys",
+  name: "addMoneys",
   data() {
     return {
-      imagenArticulo1: "",
+      image: "",
       price: "",
       locate: "",
       money_type: "",
       money_country: "",
       coments: "",
-      errorMsg: false
+      errorMsg: false,
     };
   },
   methods: {
     catchSeeArticle1() {
-      this.imagenArticulo1 = this.$refs.imagenArticulo1.files[0];
-      console.log(this.imagenArticulo1);
+      /* this.image = this.$refs.image.files[0]; */
+      this.image = event.target.files[0];
+      console.log(this.image);
     },
     sweetAlertOKMoneda() {
       Swal.fire({
+        position: "center",
         title: "New money",
         text: "Successfully created money",
         icon: "success",
-        confirmButtonText: "OK"
+        confirmButtonText: "OK",
       });
     },
     sweetAlertFalloMoneda() {
       Swal.fire({
         icon: "error",
         title: "Wrong!",
-        text: "You must cover all the fields"
+        text: "You must cover all the fields",
       });
     },
 
@@ -85,22 +86,17 @@ export default {
         try {
           let token = localStorage.getItem("AUTH_TOKEN_KEY");
           axios.defaults.headers.common["Authorization"] = `${token}`;
-          console.log(formData);
+
           let formData = new FormData();
           formData.append("money_type", this.money_type);
           formData.append("price", this.price);
           formData.append("locate", this.locate);
           formData.append("money_country", this.money_country);
           formData.append("coments", this.coments);
-          formData.append("processImage1", this.imagenArticulo1);
+          formData.append("image", this.image);
+          console.log(formData);
           const response = await axios
-            .post("http://localhost:3000/articles", formData, {
-              money_type: this.money_type,
-              price: this.price,
-              locate: this.locate,
-              money_country: this.money_country,
-              coments: this.coments
-            })
+            .post("http://localhost:3000/articles", formData)
             .then(function(response) {
               console.log(response);
             })
@@ -121,7 +117,65 @@ export default {
       } else {
         console.log("yo no debería estar aquí");
       }
-    }
-  }
+    },
+  },
 };
 </script>
+
+<style scoped>
+input[type="text"] {
+  width: 170px;
+  margin: 10px;
+  padding: 10px 16px;
+  border-radius: 32px;
+  outline: none;
+  border: 2px solid #ccd1d1;
+  background-color: transparent;
+  color: white;
+  transition: all 0.5s;
+}
+input[type="file"] {
+  width: 170px;
+  font-size: 12px;
+  margin: 10px;
+  padding: 10px 16px;
+  border-radius: 32px;
+  outline: none;
+  border: 2px solid #ccd1d1;
+  background-color: transparent;
+  color: white;
+  transition: all 0.5s;
+}
+button {
+  font-family: "Saira", sans-serif;
+  width: 70px;
+  height: 45px;
+  background: transparent;
+  border-radius: 10px;
+  border: 2px solid yellow;
+  font-weight: bold;
+  color: yellow;
+}
+@media (min-width: 400px) {
+  html {
+    font-size: 22px;
+  }
+
+  h1 {
+    font-size: 30px;
+  }
+}
+@media (min-width: 300px) {
+  html {
+    font-size: 22px;
+  }
+  h1 {
+    font-size: 30px;
+  }
+}
+@media (min-width: 1000px) {
+  html {
+    font-size: 22px;
+  }
+}
+</style>

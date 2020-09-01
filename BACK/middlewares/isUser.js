@@ -44,6 +44,7 @@ async function isUser(req, res, next) {
     const tokenCreatedAt = new Date(tokenInfo.iat * 1000);
     const lastAuthUpdate = new Date(result[0].lastAuthUpdate);
 
+    console.log(tokenCreatedAt, lastAuthUpdate);
     if (tokenCreatedAt < lastAuthUpdate) {
       const error = new Error(
         "El token no es valido. Haz login para conseguir otro"

@@ -7,6 +7,7 @@
 <script>
 import axios from "axios";
 import listmoneyscom from "@/components/ListMoneysCom.vue";
+import Swal from "sweetalert2";
 
 export default {
   name: "ListMoneys",
@@ -20,6 +21,9 @@ export default {
     };
   },
   methods: {
+    sweetAlertReserva() {
+      Swal.fire("Good job!", "You have just booked this item!!", "success");
+    },
     listMoneys() {
       var self = this;
 
@@ -48,6 +52,7 @@ export default {
       } catch (error) {
         console.error(error);
       }
+      this.sweetAlertReserva();
     },
     async reservar() {
       let params = this.id_money;

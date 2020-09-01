@@ -1,30 +1,53 @@
 <template>
   <div id="app">
-    <!-- Pagina principal -->
-    <div id="nav">
-      <div class="but">
-        <router-link tag="button" v-show="logged" :to="{ name: 'GetUser' }">Profile</router-link>
-        <button v-show="logged" @click="logoutUser()">Logout</button>
-      </div>
+    <div class="nav">
+      <router-link v-show="logged" :to="{ name: 'Home' }">Home</router-link>
+      <router-link v-show="logged" :to="{ name: 'Articles' }"
+        >Marketplace</router-link
+      >
+      <router-link v-show="logged" to="/newmoney">New currency</router-link>
+      <router-link to="/about">About</router-link>
 
-      <h1>HACK A MON€Y</h1>
-      <router-link :to="{ name: 'Home' }">Home</router-link>-
-      <router-link to="/register">Join us</router-link>
-      <router-link v-show="logged" :to="{ name: 'Articles' }">- Articles</router-link>
-      <router-link v-show="logged" to="/newmoney">- New article</router-link>
+      <div class="logoutAndProfile">
+        <router-link
+          class="profile"
+          tag="button"
+          v-show="logged"
+          :to="{ name: 'GetUser' }"
+          >Profile</router-link
+        >
+        <button
+          class="gg-log-off"
+          v-show="logged"
+          @click="logoutUser()"
+        ></button>
+      </div>
+    </div>
+
+    <div>
+      <a href="/">
+        <img src="./assets/logo2.png" />
+      </a>
+    </div>
+
+    <div class="title">
+      <p v-show="!logged">"Manage your money in an easy way"</p>
     </div>
 
     <!-- Vista del usuario cuando hace login -->
+
     <div id="miperfil">
       <p v-show="logged">
-        Wellcome
+        Welcome
         <router-link :to="{ name: 'GetUser' }">
-          <b>{{ name }}</b>
-        </router-link>!
+          <b>{{ name }}</b> </router-link
+        >!
       </p>
     </div>
-    <router-view />
 
+    <!-- Pagina principal -->
+
+    <router-view @login="getLogin()" @logout="logoutUser" />
     <footercom />
   </div>
 </template>
@@ -34,16 +57,17 @@ import footercom from "@/components/FooterCom.vue";
 import { Logout, logout } from "./api/utils";
 import { getName } from "./api/utils";
 import { isLoggedIn } from "./api/utils";
+
 export default {
   name: "App",
   components: {
-    footercom
+    footercom,
   },
   data() {
     return {
       username: "",
       name: "",
-      logged: false
+      logged: false,
     };
   },
   methods: {
@@ -55,23 +79,25 @@ export default {
       this.$router.push("/");
       location.reload();
     },
+    loginUser() {
+      this.getLogin();
+      this.$router.push("/");
+    },
     getLogin() {
       this.logged = isLoggedIn();
-    }
+      this.setUserName();
+    },
   },
   created() {
     this.getLogin();
     this.setUserName();
-  }
+  },
 };
 </script>
 <style>
+@import url("https://css.gg/log-off.css");
 @import url("https://fonts.googleapis.com/css2?family=Comfortaa:wght@600&display=swap");
 @import url("https://fonts.googleapis.com/css2?family=Saira:wght@200&display=swap");
-
-* {
-  max-width: 100%;
-}
 
 #app {
   font-family: "Saira", sans-serif;
@@ -80,48 +106,184 @@ export default {
   -moz-osx-font-smoothing: grayscale;
   text-align: center;
   color: white;
-  background-color: #2c3e50;
+  background-image: url("https://images.unsplash.com/photo-1500316124030-4cffa46f10f0?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=1350&q=80");
+  background-attachment: fixed;
+  background-repeat: no-repeat;
+  background-position: center center;
+  background-size: cover;
 }
 
-#nav {
-  padding: 30px;
+/* Style the navbar */
+.nav {
+  overflow: hidden;
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  background-color: rgb(32, 29, 29);
 }
 
-#nav h1 {
-  font-family: "Comfortaa", cursive;
-  font-size: 40px;
-}
-
-#nav a {
-  font-weight: bold;
+/* Navbar links */
+.nav a {
+  float: left;
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
   color: white;
-  font-size: 1.2rem;
+  text-align: center;
+  padding: 14px 18px;
   text-decoration: none;
+  font-size: 17px;
 }
 
-#nav a.router-link-exact-active {
+.title p {
+  font-family: "Saira", sans-serif;
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  font-size: 30px;
+  font-style: italic;
+}
+
+/* Navbar links on mouse-over */
+.nav a:hover {
+  background-color: none;
+  color: white;
+  text-decoration: underline;
+}
+
+/* Style the input container */
+.nav .logoutAndProfile {
+  display: flex;
+  flex-direction: row;
+  justify-content: right;
+}
+
+.nav .logoutAndProfile button.profile {
+  display: flex;
+  flex-direction: row;
+  justify-content: end;
+  padding: 6px;
+  margin-top: 8px;
+  margin-right: 16px;
+  font-size: 17px;
+  cursor: pointer;
+}
+
+.nav .logoutAndProfile button:hover {
+  background: red;
+}
+/* Boton search */
+
+button {
+  font-family: "Saira", sans-serif;
+  width: 65px;
+  height: 30px;
+  background: transparent;
+  border-radius: 10px;
+  border: 2px solid yellow;
+  font-weight: bold;
   color: yellow;
 }
 
-#nav div.but {
+/* Boton logout */
+
+.logoutAndProfile .gg-log-off {
+  box-sizing: border-box;
+  border-radius: 16px;
+  border: 2px solid;
+  transform: scale(var(--ggs, 1));
+  width: 20px;
+  height: 20px;
+  border-top: 2px solid transparent;
+}
+.logoutAndProfile .gg-log-off::before {
+  content: "";
+  border-radius: 6px;
+  height: 10px;
+  width: 2px;
+  background: currentColor;
+  bottom: 8px;
+  margin-left: 2px;
+}
+button {
+  font-family: "Saira", sans-serif;
+  font-size: 12px;
+  width: 50px;
+  height: 25px;
+  border-radius: 10px;
+  color: rgb(243, 85, 85);
+  background: none;
+  margin-top: 18px;
+}
+
+/* Boton profile */
+.logoutAndProfile button.profile {
   display: flex;
-  text-align: center;
-  justify-content: space-between;
+  flex-direction: row;
+  font-family: "Saira", sans-serif;
+  width: 70px;
+  height: 40px;
+  background: none;
+  border-radius: 10px;
+  border: 3px solid white;
+  font-weight: bold;
+  color: white;
 }
 
 #miperfil p a:visited {
   color: yellow;
 }
 
-@media (min-width: 700px) {
+@media (min-width: 500px) {
   html {
     font-size: 22px;
+    background-attachment: fixed;
+    background-repeat: no-repeat;
+    background-position: center center;
+    background-size: cover;
+  }
+
+  .nav {
+    overflow: hidden;
+    display: flex;
+    flex-direction: row;
+    justify-content: left;
+    background-color: rgb(32, 29, 29);
   }
 }
 
-@media (min-width: 1000px) {
+@media (min-width: 700px) {
+  html {
+    font-size: 22px;
+    background-attachment: fixed;
+    background-repeat: no-repeat;
+    background-position: center center;
+    background-size: cover;
+  }
+
+  .nav {
+    overflow: hidden;
+    display: flex;
+    flex-direction: row;
+    justify-content: left;
+    background-color: rgb(32, 29, 29);
+  }
+}
+
+@media (max-width: 1100px) {
   html {
     font-size: 27px;
+    background-attachment: fixed;
+    background-repeat: no-repeat;
+    background-position: center center;
+    background-size: cover;
+  }
+  .nav {
+    overflow: hidden;
+    display: flex;
+    flex-direction: row;
+    justify-content: left;
+    background-color: rgb(32, 29, 29);
   }
 }
 </style>

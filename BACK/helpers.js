@@ -29,7 +29,7 @@ async function processAndSaveImage(uploadedImage) {
     image.resize(1000);
   }
   //guardar la imagen en un directorio
-  const imageFileName = `${uuid.v4()}.jpg`;
+  const imageFileName = `${uuid.v4()}.png`;
   await image.toFile(path.join(imageUploadPath, imageFileName));
 
   //DEvolver el nombre con que gfue guardado

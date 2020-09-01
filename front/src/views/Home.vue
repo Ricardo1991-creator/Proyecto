@@ -1,19 +1,21 @@
 <template>
-  <div>
-    <p>User login</p>
-    <div class="log">
+  <div id="nav">
+    <div v-show="!logged" class="log">
       <input type="email" v-model="email" placeholder="email" />
       <br />
       <input type="password" v-model="password" placeholder="password" />
       <br />
       <button @click="loginUser()">Login</button>
-    </div>
 
-    <p class="pass">
-      <router-link to="/recover-password">Forgot your password?</router-link>
-    </p>
-    <div>
-      <articlescom v-on:moneysList="getArticles" :moneys="moneys" />
+      <p class="pass">
+        <router-link to="/register">Not registered?</router-link>
+        <br />
+        <router-link to="/recover-password">Forgot your password?</router-link>
+      </p>
+    </div>
+    <articlescom v-on:moneysList="getArticles" :moneys="moneys" />
+    <div class="market">
+      <img src="../assets/market.png" alt="imagen market" />
     </div>
   </div>
 </template>
@@ -21,6 +23,7 @@
 <script>
 import axios from "axios";
 import articlescom from "@/components/ArticlesCom.vue";
+import { isLoggedIn, getName } from "../api/utils";
 
 export default {
   name: "Home",
@@ -29,6 +32,7 @@ export default {
   },
   data() {
     return {
+      logged: false,
       moneys: [],
       email: "",
       password: "",
@@ -36,6 +40,13 @@ export default {
     };
   },
   methods: {
+    setUserName() {
+      this.name = getName();
+    },
+    getLogin() {
+      this.logged = isLoggedIn();
+      this.setUserName();
+    },
     //FUNCION  QUE ME MUESTRE LAS MONEDAS
     getArticles(search) {
       let self = this;
@@ -71,7 +82,7 @@ export default {
           console.log(error);
         });
     },
-
+    //FUNCION PARA LOGEAR
     loginUser() {
       if (this.email === "" || this.password === "") {
         alert("Te faltan datos");
@@ -83,7 +94,7 @@ export default {
             email: self.email,
             password: self.password,
           })
-          .then(function(response) {
+          .then((response) => {
             let token = response.data.data.token;
             let role = response.data.data.dbUser[0].role;
             let name = response.data.data.dbUser[0].name;
@@ -91,9 +102,13 @@ export default {
             localStorage.setItem("ROLE", role);
             localStorage.setItem("NAME", name);
 
+            this.$router.push("/");
+
+            this.$emit("login");
+
             // PARA QUE NO SALGA UN ERROR HACIENDO LOGIN
           })
-          .catch(function(error) {
+          .catch(() => {
             console.log(error);
           });
       }
@@ -102,23 +117,61 @@ export default {
       }, 100);
     },
   },
+  created() {
+    this.getLogin();
+  },
 };
 </script>
 
 <style scoped>
-div.log {
-  margin-bottom: 5px;
+#nav {
+  min-height: 200px;
 }
-p.pass {
+#nav p.pass {
   color: white;
   margin-bottom: -10px;
 }
-
-p.pass :visited {
+#nav p.pass :visited {
   color: white;
 }
-p.pass :hover {
+#nav p.pass :hover {
   color: yellow;
+}
+
+.market img {
+  width: 50%;
+}
+
+input[type="email"] {
+  width: 170px;
+  margin: 10px;
+  padding: 10px 16px;
+  border-radius: 32px;
+  outline: none;
+  border: 2px solid #ccd1d1;
+  background-color: transparent;
+  color: white;
+  transition: all 0.5s;
+}
+input[type="email"]:focus {
+  background: transparent;
+  width: 200px;
+}
+
+input[type="password"] {
+  width: 170px;
+  margin: 10px;
+  padding: 10px 16px;
+  border-radius: 32px;
+  outline: none;
+  border: 2px solid #ccd1d1;
+  background-color: transparent;
+  color: white;
+  transition: all 0.5s;
+}
+input[type="password"]:focus {
+  background: transparent;
+  width: 200px;
 }
 
 @media (min-width: 700px) {
@@ -146,9 +199,10 @@ button {
   font-family: "Saira", sans-serif;
   width: 65px;
   height: 30px;
-  background: yellow;
+  background: transparent;
   border-radius: 10px;
+  border: 2px solid yellow;
   font-weight: bold;
-  color: #2c3e50;
+  color: yellow;
 }
 </style>

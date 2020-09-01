@@ -41,7 +41,7 @@ async function editPassword(req, res, next) {
       `
           UPDATE users
           SET password=SHA2(?,512),
-          lastUpdate=NOW(),lastAuthUpdate=NOW()
+          lastUpdate=UTC_TIMESTAMP,lastAuthUpdate=UTC_TIMESTAMP
           WHERE id=?
           `,
       [newPassword, id]

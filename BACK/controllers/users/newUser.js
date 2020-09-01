@@ -57,8 +57,8 @@ async function newUser(req, res, next) {
     //Meter el nuevo usuario en la base de datos sin activar
     await connection.query(
       `
-          INSERT INTO users(name,lastname,email,password,registrationCode,lastUpdate)
-          VALUES(?,?,?,SHA2(?,512),?,NOW())
+          INSERT INTO users(createDate,name,lastname,email,password,registrationCode,lastUpdate)
+          VALUES(UTC_TIMESTAMP,?,?,?,SHA2(?,512),?,UTC_TIMESTAMP)
           `,
       [name, lastname, email, password, registrationCode]
     );

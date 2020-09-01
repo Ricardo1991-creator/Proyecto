@@ -12,13 +12,26 @@ export default {
 </script>
 
 <style scoped>
-/* PONER SIEMPRE EL SCOPED */
 footer {
   margin-top: 110px;
   text-align: center;
-
-  width: 100%;
-  height: 40px;
   color: white;
+}
+
+@media (max-width: 600px) {
+  footer {
+    font-size: 10px;
+    margin-top: 110px;
+    text-align: center;
+    color: white;
+  }
+}
+@media (max-width: 800px) {
+  footer {
+    font-size: 15px;
+    margin-top: 110px;
+    text-align: center;
+    color: white;
+  }
 }
 </style>

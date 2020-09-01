@@ -52,6 +52,7 @@ async function editMoney(req, res, next) {
       status: "ok",
       data: {
         id,
+        price,
         locate,
         money_type,
         money_country,

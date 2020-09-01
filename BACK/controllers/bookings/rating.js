@@ -48,7 +48,7 @@ async function rating(req, res, next) {
     await connection.query(
       `
           INSERT INTO bookings(id_user,rating,name,lasUpdate)
-          VALUES (?, ?, ?, NOW())
+          VALUES (?, ?, ?, UTC_TIMESTAMP)
         `,
       [id, userRating, req.auth.id]
     );

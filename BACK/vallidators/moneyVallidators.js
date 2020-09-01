@@ -20,21 +20,8 @@ const newEntrySchema = Joi.object().keys({
 });
 
 const editEntrySchema = Joi.object().keys({
-  price: Joi.string()
-    .min(2)
-    .max(100)
-    .required()
-    .error(
-      generateError(
-        "El campo price debe existir y ser mayor de 2 caracteres",
-        400
-      )
-    ),
-
-  locate: Joi.string()
-    .max(1000)
-    .required()
-    .error(generateError("El campo locate debe existir", 400)),
+  price: Joi.string().min(0).max(100).required(),
+  locate: Joi.string().max(1000).required(),
   money_type: Joi.string().max(1000).required(),
   money_country: Joi.string().max(10000).required(),
 

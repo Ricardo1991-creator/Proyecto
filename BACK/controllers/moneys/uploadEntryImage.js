@@ -51,7 +51,7 @@ async function uploadEntryImage(req, res, next) {
         await connection.query(
           `
           INSERT INTO moneys_images (uploadDate, image, entry_id)
-          VALUES(NOW(), ?, ?)
+          VALUES(UTC_TIMESTAMP, ?, ?)
           `,
           [processedImage, id]
         );
